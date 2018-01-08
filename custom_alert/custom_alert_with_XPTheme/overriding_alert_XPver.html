@@ -1,0 +1,57 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+  <title> New Document </title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="Generator" content="EditPlus">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+ <script type="text/javascript" src="./jquery.js"></script>
+ <script type="text/javascript" src="./jquery-ui.min.js"></script>
+  <script type="text/javascript" src="./jquery.blockUI.js"></script>
+ <script type="text/javascript" src="./custom_alert.js"></script>
+<link rel="stylesheet" type="text/css" href="./custom_alert_XP.css"/>
+ </head>
+
+ <body>
+	경고메세지 입력 :  <input type="text" id="alertMsg" value="테스트입니다." style="width:200px;"/>&nbsp;&nbsp;
+	<input type="button" id="warnBtn" name="warnBtn" value="경고창" /><br/>
+	너비 : <input type="text" id="windowX" value="" style="width:70px;"readonly/><br/>
+	높이 : <input type="text" id="windowY" value="" style="width:70px;"readonly/>
+	<!--
+	<div id="msgs_div">	
+		<div class="ubi_alert box">
+			<div class="ubi_alert head">
+				경고
+			</div>
+			<div class="ubi_alert body">
+				테스트
+			</div>
+			<div class="ubi_alert foot">
+					<input type="button" class="ubi_alert close" value="확인" />
+			</div>
+		</div>
+	</div>
+	-->
+	<br/><br/><br/>
+	<iframe id="frm1" width="200px" height="100px"></iframe>
+	<iframe id="frm2" width="200px" height="100px"></iframe>
+ </body>
+<script type="text/javascript">
+	var btn = document.getElementById("warnBtn");	
+	btn.onclick = function(){
+		var msg_input = document.getElementById("alertMsg") || {};
+		alert(msg_input.value);
+	};
+	//alert("테스트");
+
+	var displaySize = function(){
+		document.getElementById("windowX").value = window.clientWidth == undefined ? window.innerWidth : window.clientWidth;
+		document.getElementById("windowY").value = window.clientHeight == undefined ? window.innerHeight : window.clientHeight;
+	};
+
+	window.onresize = displaySize;
+	displaySize();
+</script>
+</html>

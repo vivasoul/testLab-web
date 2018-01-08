@@ -1,0 +1,131 @@
+<!doctype html>
+<html>
+<head>
+<title></title>
+<script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<style type="text/css">
+.group_block	{ width:90%;display:block;border:0px solid black;min-width:300px;  }
+.group_block .group_header	{	
+								width:100%;
+								background-image:url('group_header4.png');background-repeat:repeat-x;
+								height:50px;
+								padding-top:5px;
+								padding-left:5px;
+								font-size:20px;
+								font-weight:900;
+								font-family:Arial, Helvetica, sans-serif;
+							}
+.group_block .group_content	{ 
+								width:100%;
+							}
+
+.user_block		{				border:0px solid black; 
+								padding:7px;
+								font-size:17px;
+								font-weight:800;
+								font-family:Arial, Helvetica, sans-serif;
+								width:100%;
+	
+				}
+.user_block .user_header		{ display:inline-block;text-align:left;width:65%; }
+.user_block .user_content		{ display:inline-block;text-align:right;width:35%; }
+
+</style>
+</head>
+<body>
+	<div id = "treeTemplate">
+	</div>
+</body>
+<script type="text/javascript">
+	var treeMain = document.getElementById("treeTemplate");
+
+	//console.log(treeMain);
+	var groups = {};
+	var users = {};
+
+	var Group = function(_id, _name){
+		this.id = _id;
+		this.name = _name;
+		this.count = 0;
+		this.members = {};
+		this.DOM = document.createElement("div");
+		this.DOM.id = this.id;
+		this.DOM.className = "group_block";
+		this.DOM.head =  document.createElement("div");
+		this.DOM.head.innerHTML = this.name + "("+this.count+")";
+		this.DOM.head.className =  "group_header";
+		this.DOM.body =  document.createElement("div");
+		this.DOM.body.className =  "group_content";
+
+		this.DOM.head.onclick = function(e){
+			jQuery(this).find("~.group_content").toggle(500);
+		};
+
+		this.DOM.appendChild(this.DOM.head);
+		this.DOM.appendChild(this.DOM.body);
+
+		this.updateGroupCount = function(){
+			this.DOM.head.innerHTML = this.name +"("+(++this.count)+")";
+		};
+
+		var root = treeMain;
+		if(root != null) root.appendChild(this.DOM);
+	};
+
+	var User = function(_id, _name, _status, _loggedOut, _grouObj){
+		if(_id in users){
+			console.log("이미 존재하는 아이디입니다.");
+			return null;
+		}
+		else
+		{
+
+			this.id = _id;
+			this.name = _name;
+			this.status = _status;
+			this.loggedOut = _loggedOut;
+			this.DOM = document.createElement("div");
+			this.DOM.id = this.id;
+			this.DOM.className = "user_block";
+			this.DOM.head =  document.createElement("div");
+			this.DOM.head.className =  "user_header";
+			this.DOM.head.innerHTML = this.name;
+			this.DOM.body =  document.createElement("div");
+			this.DOM.body.className =  "user_content";
+			this.DOM.body.innerHTML = "["+ this.status +"]";
+
+			this.updateStatus = function(__status){
+				if(__status) this.status = __status
+				this.DOM.body.innerHTML = "["+ this.status +"]";
+				if(this.loggedOut) this.DOM.style.opacity = "0.5";
+				else				this.DOM.style.opacity = "1.0";
+			}
+
+			this.updateStatus();
+
+			this.DOM.appendChild(this.DOM.head);
+			this.DOM.appendChild(this.DOM.body);
+
+			if(_grouObj instanceof Group){
+				_grouObj.members[this.id] = this;
+				_grouObj.DOM.body.appendChild(this.DOM);
+				_grouObj.updateGroupCount();
+			}
+
+
+			return this;
+		}
+	};
+
+	groups["APGroup"] = new Group("APGroup", "APGroup");
+	groups["UbiGroup"] = new Group("UbiGroup", "UbiGroup");
+
+	users["vivasoul"] = new User("vivasoul", "이기태", "대기", false, groups["APGroup"]);
+	users["vivasoul2"] = new User("vivasoul2", "이기태2", "이석", false, groups["APGroup"]);
+
+	users["jej512"] = new User("jej512", "전은주", "작업중", false, groups["UbiGroup"]);
+	users["jej5122"] = new User("jej5122", "전은주2", "로그아웃", true, groups["UbiGroup"]);
+
+</script>
+</html>

@@ -1,0 +1,25 @@
+<div id="ubi_screen" style="display:none;filter:alpha(opacity=40);zIndex:20000;position:absolute;top:0;left:0;width:100%;height:100%">
+	<iframe src="/common/blackScreen.jsp" frameborder=0 style="width:100%;height:100%"></iframe>
+</div>
+<div id="ubi_alert_div" style="display:none;">
+	<iframe id="ubi_alert_frm" src="/js/plugin/custom_alert/custom_alert_modal.html" frameBorder="0" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:5;" allowTransparency="true"></iframe>
+</div>
+<script type="text/javascript">	
+
+	window.alert = function(msg, time, callback){
+		if(this.top)
+		{
+			var top = this.top;
+			top.document.getElementById("ubi_alert_div").style.display = "block";
+			top.document.getElementById("ubi_screen").style.display = "block";
+			top.ubi_alert_frm.custom_alert(msg, time, callback);
+		}
+		else
+		{
+			document.getElementById("ubi_alert_div").style.display = "block";
+			document.getElementById("ubi_screen").style.display = "block";
+			ubi_alert_frm.custom_alert(msg, time, callback);
+		}
+	};
+	window.alert.isCustom = true;
+</script>

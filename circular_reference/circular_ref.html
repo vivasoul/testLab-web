@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <title>Document</title>
+ </head>
+ <body>
+	<button type="button" id="test" name="test">테스트</button>
+ </body>
+	<script type="text/javascript">
+		var delegateEvent = function(){
+			var elem = document.getElementById("test");
+			var daft = function(e){
+				alert("NONO");
+			};
+			elem.onclick = daft;
+
+			daft = null;
+		};
+
+		delegateEvent();
+	</script>
+</html>

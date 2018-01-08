@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <title>Document</title>
+   <script type="text/javascript">
+	var wsSocket;
+
+	var connectWS = function(client_id)
+	{	
+		console.log("try to connect ws...");
+		try
+		{	
+			wsSocket = new WebSocket('ws://localhost:6060/ws/interface/'+client_id);
+			
+			wsSocket.onopen = function() {
+				console.log("connected...");
+			};
+
+			wsSocket.onmessage = function(e) {
+					console.log(e.data);
+			};
+			
+			wsSocket.onclose = function(){
+				console.log('close connection.............');
+			};
+
+			console.log("connect success!");
+		}
+		catch(e)
+		{
+			console.log(e.message);
+			console.log("connect failed..!");
+		}
+	};
+
+	var closeWS = function()
+	{
+		console.log("try to disconnect ws...");
+		try{		
+			if(wsSocket){
+				wsSocket.close();
+				console.log("disconnect success!");
+			}
+		}catch(e){
+			console.log(e.message);
+			console.log("disconnect failed..!");
+		}
+	};
+	
+   </script>
+ </head>
+ <body>
+	접속아이디 : <input type="text" id="client_id" value=""/></br>
+	<input type="button" id="btnConnect" value="웹소켓접속"/>
+	<input type="button" id="btnDisconnect" value="웹소켓해제"/>
+ </body>
+ <script type="text/javascript">
+
+	document.getElementById("btnConnect").onclick = function()
+	{
+		var client_id = document.getElementById("client_id").value;
+		connectWS(client_id);
+	};
+
+	document.getElementById("btnDisconnect").onclick = closeWS;
+ </script>
+</html>
+<!--
+지금 voc-care 서버 - 서비스쪽에 bpm모듈로 스레드가 3개 올라가 있잖아요..
+
+거기다가 클아이언트 웹소켓 연결 유지용이라 스레드 하나 더 얹으려고 하는데
+
+무리가 없을가요
+
+운영관리쪽 웹소켓 서버 바라보도록 해서 voc-care랑 운영관리랑 웹소켓 연결시켜두려 하는데.
+-->

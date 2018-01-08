@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+  <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+  <script src="raphael-min.js"></script>
+  <title>Document</title>
+  <style>
+  .draggable { width: 90px; height: 80px; padding: 5px; float: left; margin: 0 10px 10px 0; font-size: .9em; }
+  .ui-widget-header p, .ui-widget-content p { margin: 0; }
+  #snaptarget { height: 140px; }
+ #draggable5, #draggable6 { background-color:#999;}
+ #top_container{ border : 0px solid green;display:block;width:1200px; height:700px;margin-left:100px;}
+  #room_container { border : 0px solid red;display:inline-block; width:800px; height:600px;  position:absolute;}
+  #grid_contatiner {border : 0px solid blue;display:inline-block; width:800px; height:600px; position:absolute;}
+  #fragment_container .ui-draggable{
+		background-color:#999;
+
+	}
+  #fragment_container{
+  	position:absolute;
+  }
+  .lined_box { border : 1px solid black;}
+
+  </style>
+  <script type="text/javascript">
+	var getHexFromIP = function(_ip){
+		var regex = /(\d{1,3})[.](\d{1,3})[.](\d{1,3})[.](\d{1,3})/;
+		
+		var ip_frag = regex.exec(_ip);
+			
+		var hex_ip = "IP_";
+		if(ip_frag && ip_frag.length === 5)
+		{
+			for(var i=1; i< ip_frag.length; i++)
+			{
+				hex_ip+=Number(ip_frag[i]).toString(16);
+			}
+		}
+		else
+		{
+			hex_ip += "UNKNOWN";
+		}
+		return hex_ip;
+	};
+
+	var dataSet = {
+		"1.209.204.250" : { "id" : "" , "name": "이기태", "x_pos" : 200, "y_pos": 200}
+	};
+		
+	dataSet["1.209.204.250"].id = getHexFromIP("1.209.204.250");
+
+	const OK_TO_GO					= 0;
+	const ERR_NO_REF_DOM		= 1;	
+	const ERR_NOT_VALID_POS	= 2;	
+	const ERR_POS_IN_USE			= 3;	
+
+	var grid_size = [25, 25];
+	var cell_size =  [150, 50];		// "cell_size[i]/grid_size[i]" must be a integer, excluding zero.
+
+	var Coordinates = function(_DOM_id, _grid_size_arr, _cell_size_arr)
+	{
+		this.grid_unit = {
+			"x_unit_size" : _grid_size_arr[0],
+			"y_unit_size" : _grid_size_arr[1],
+			"x_cell_size" : _cell_size_arr[0],
+			"y_cell_size" : _cell_size_arr[1]
+		};
+
+		for(var prop in this.field_meta){
+			if(!(this.field_meta[prop]))	return;
+		}
+
+		if(_cell_size_arr[0] % _grid_size_arr[0] !== 0 || _cell_size_arr[1] % _grid_size_arr[1] !== 0)  return;
+
+		this.grid_unit["x_efficient_unit"] = _cell_size_arr[0]/_grid_size_arr[0];
+		this.grid_unit["y_efficient_unit"] = _cell_size_arr[1]/_grid_size_arr[1];
+
+		this.container = jQuery("#"+_DOM_id);
+
+		var $grid_field = 	this.container;
+
+		var width = $grid_field.width();
+		var height = $grid_field.height();
+		
+		var x_tick = Math.round(width/_grid_size_arr[0]);
+		var y_tick = Math.round(height/_grid_size_arr[1]);
+
+		var valid_x_tick = x_tick - (_cell_size_arr[0]/_grid_size_arr[0]);
+		var valid_y_tick = y_tick - (_cell_size_arr[1]/_grid_size_arr[1]);
+
+		if(x_tick < 1 || y_tick < 1 || x_tick < valid_x_tick || y_tick < valid_y_tick) return;
+		
+		this.grid_tick = {
+			"x_tick" : x_tick,
+			"y_tick" : y_tick,
+			"valid_x_tick" : valid_x_tick,
+			"valid_y_tick" : valid_y_tick
+		};
+
+		this.positions = {};
+
+		for(var x =0; x < x_tick; x++)
+		{
+			this.positions[x*_grid_size_arr[0]] = {};
+			for(var y=0; y < y_tick; y++)
+			{
+				this.positions[x*_grid_size_arr[0]][y*_grid_size_arr[1]] = { "ref_DOM" : null };
+			}
+		}
+	};
+		
+	Coordinates.prototype.checkPosition_Point = function(_x_grid_pos, _y_grid_pos){
+
+		var check = OK_TO_GO;
+
+		if(this.positions[_x_grid_pos] && this.positions[_x_grid_pos][_y_grid_pos])
+		{
+			var positionObj = this.positions[_x_grid_pos][_y_grid_pos].ref_DOM;
+			if(positionObj === null)
+			{	
+				
+			}
+			else if(positionObj instanceof Object)
+			{
+				check = ERR_POS_IN_USE;
+			}
+			else
+			{
+				check = ERR_NO_REF_DOM;
+			}
+		}
+		else
+		{
+			check = ERR_NOT_VALID_POS;
+		}
+		//console.log(_x_grid_pos+", " +_y_grid_pos+" = " + check);
+	
+		return check;
+	};
+
+	Coordinates.prototype.checkPosition_Area = function(_x_grid_pos, _y_grid_pos){
+		var x_efficient_unit = this.grid_unit["x_efficient_unit"];
+		var y_efficient_unit = this.grid_unit["y_efficient_unit"];
+		
+		var x_unit_size = this.grid_unit["x_unit_size"];
+		var y_unit_size = this.grid_unit["y_unit_size"];
+
+		var check = OK_TO_GO;
+		for(var i=y_efficient_unit*(-1)+1; i<y_efficient_unit;i++)
+		{
+			for(var j=x_efficient_unit*(-1)+1; j<x_efficient_unit;j++)
+			{
+				var x_efficient = _x_grid_pos + ( j * x_unit_size);
+				var y_efficient = _y_grid_pos + ( i * y_unit_size);
+
+				if(x_efficient < 0 || y_efficient < 0) continue;
+
+				check += this.checkPosition_Point(x_efficient, y_efficient);
+			}
+		}
+		if(check > OK_TO_GO) return false;
+		else							return true;
+	};
+
+	Coordinates.prototype.registPosition = function(_refDOM, _x_grid_pos, _y_grid_pos){
+		if(!_refDOM) return;
+
+		var check = this.checkPosition_Area(_x_grid_pos, _y_grid_pos);
+
+		if(check)
+		{
+				console.log(_refDOM.grid_pos);
+
+				if(_refDOM.grid_pos) this.positions[_refDOM.grid_pos[0]][_refDOM.grid_pos[1]].ref_DOM = null;
+				this.positions[_x_grid_pos][_y_grid_pos].ref_DOM = _refDOM;
+				_refDOM.grid_pos = [_x_grid_pos, _y_grid_pos];
+
+				console.log(_refDOM.grid_pos);
+		}
+		return check;
+	};
+
+	Coordinates.prototype.unregistPosition = function(_refDOM){
+		if(!_refDOM) return;
+
+		if(_refDOM.grid_pos) this.positions[_refDOM.grid_pos[0]][_refDOM.grid_pos[1]].ref_DOM = null;
+	};
+
+	Coordinates.prototype.revertPosition = function(_refDOM){
+		if(!_refDOM) return;
+
+		if(_refDOM.grid_pos) this.positions[_refDOM.grid_pos[0]][_refDOM.grid_pos[1]].ref_DOM = _refDOM;
+	};
+
+	Coordinates.prototype.createCell = function(_$DOM, _x_grid_pos, _y_grid_pos){
+
+		if(this.registPosition(_$DOM, _x_grid_pos, _y_grid_pos))
+		{
+			this.container.append(_$DOM);
+			var stand_offset = this.container.offset();
+
+			_$DOM.offset({
+				left : _x_grid_pos + stand_offset.left,
+				top : _y_grid_pos + stand_offset.top
+			});
+
+			var coordinater = this;
+			var container = coordinater.container;
+
+			_$DOM.draggable({
+				containment : "#"+container.prop("id"),
+				grid	: [coordinater.grid_unit.x_unit_size, coordinater.grid_unit.y_unit_size],
+				revert: true,
+				revertDuration : 0,
+				helper: "original" ,
+				start : function(e, ui){
+					_$DOM.zIndex(5);
+					coordinater.unregistPosition(_$DOM);
+				},
+				drag : function(e, ui){
+
+					var fitted_x = ui.offset.left - container.offset().left;
+					var fitted_y = ui.offset.top - container.offset().top;
+					
+					if(coordinater.checkPosition_Area(fitted_x, fitted_y))	ui.helper.css("background-color","#090");
+					else																	ui.helper.css("background-color","#B00");					
+					
+				},
+				stop : function(e, ui){
+					e = e || window.event;
+					_$DOM.zIndex(0);
+					var fitted_x = ui.offset.left - container.offset().left;
+					var fitted_y = ui.offset.top - container.offset().top;
+					//console.log(coord_json.positions[fitted_x][fitted_y]);
+					//var $new_dom = ui.helper;
+					coordinater.moveCell(_$DOM, fitted_x, fitted_y);
+
+					_$DOM.css("background-color", "#999");
+				}
+			}).css("width", coordinater.grid_unit.x_cell_size).css("height", coordinater.grid_unit.y_cell_size);
+		}
+	};
+
+	Coordinates.prototype.moveCell= function(_$DOM, _x_grid_pos, _y_grid_pos){
+
+		if(this.registPosition(_$DOM, _x_grid_pos, _y_grid_pos))
+		{
+			this.container.append(_$DOM);
+			var stand_offset = this.container.offset();
+
+			_$DOM.offset({
+				left : _x_grid_pos + stand_offset.left,
+				top : _y_grid_pos + stand_offset.top
+			});
+		}
+		else
+		{
+			this.revertPosition(_$DOM);
+		}
+	};
+
+	Raphael.fn.drawGrid = function(_coordinator){
+		if(!(_coordinator instanceof Coordinates)) return;
+
+		var count = 0;
+
+		var x_tick = _coordinator.grid_tick.x_tick;
+		var y_tick = _coordinator.grid_tick.y_tick;
+
+		var locations = _coordinator.positions;
+
+		var x_axises_arr = [];
+		for(var x=0; x <= x_tick; x++)
+		{
+			var x_pos = x*grid_size[0];
+			var y_pos = y_tick*grid_size[1];
+			x_axises_arr.push("M"+x_pos+",0 L"+x_pos+","+y_pos);
+		}
+		
+		this.path(x_axises_arr.join(" ")).attr("stroke-dasharray",".");
+
+		var y_axises_arr = [];
+		for(var y=0; y <= y_tick; y++)
+		{
+			var x_pos = x_tick*grid_size[0];
+			var y_pos = y*grid_size[1];
+			y_axises_arr.push("M0,"+y_pos+" L"+x_pos+","+y_pos);
+		}
+
+		this.path(y_axises_arr.join(" ")).attr("stroke-dasharray",".");
+	};
+	
+	var createCells = function(_coordinator, _dataSet){
+		if(!(_coordinator instanceof Coordinates)) return;
+
+		for(var ip in _dataSet){
+			var div = document.createElement("div");
+			div.id = _dataSet[ip].id;
+			div.style.backgroundColor = "#999";
+			div.innerHTML = ip +"<br/>"+_dataSet[ip].name;
+
+			_coordinator.createCell($(div), _dataSet[ip].x_pos, _dataSet[ip].y_pos);
+		}
+	};
+
+	jQuery(document).ready(function(){
+
+		var stand_position = jQuery("#top_container").offset();
+		console.log(stand_position);
+		jQuery("#grid_contatiner, #room_container").offset(stand_position);	
+		
+		jQuery("#fragment_container").offset({
+			left : stand_position.left+900,
+			top : stand_position.top
+		});
+
+		var paper = Raphael("grid_contatiner", 800, 600);
+
+		var coord_json = new Coordinates("room_container", grid_size, cell_size);
+		console.log(coord_json);
+
+		paper.drawGrid(coord_json);
+	
+		jQuery("#draggable7").draggable({
+			containment : "#top_container",
+			grid	: grid_size,
+			revert: true,
+			revertDuration : 0,
+			helper: "clone" ,
+			drag : function(e, ui){
+
+				var fitted_x = ui.offset.left - stand_position.left;
+				var fitted_y = ui.offset.top - stand_position.top;
+				
+				if( coord_json.checkPosition_Area(fitted_x, fitted_y))	ui.helper.css("background-color","#090");
+				else																	ui.helper.css("background-color","#B00");					
+				
+			},
+			stop : function(e, ui){
+				e = e || window.event;
+				//console.log(ui);
+				var fitted_x = ui.offset.left - stand_position.left;
+				var fitted_y = ui.offset.top - stand_position.top;
+				//console.log(coord_json.positions[fitted_x][fitted_y]);
+
+				var $new_dom = ui.helper.clone();
+				$new_dom.html("NEW_GRID").zIndex(0);
+				coord_json.	createCell($new_dom, fitted_x, fitted_y);
+
+				$new_dom.css("background-color", "#999");
+			}
+		}).css("width", coord_json.grid_unit.x_cell_size).css("height", coord_json.grid_unit.y_cell_size).zIndex(5);
+
+		createCells(coord_json, dataSet);
+	});
+  </script>
+ </head>
+ <body>
+ <div id="top_container">
+	 <div id="grid_contatiner"></div>
+	 <div id="room_container"> 
+
+	</div>
+	<div id="fragment_container" style="display:inline-block;width:200px;height:200px;border:0px solid black;">
+		<div id="draggable7" class="">
+			grid3 
+		</div>
+	</div>
+</div>
+ </body>
+</html>
+

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <title>Document</title>
+  <script type="text/javascript" src="./jquery-1.11.0.min.js"></script>
+ </head>
+ <body>
+
+	<input type="button" id="goAjax" value="AJAX리턴테스트"/>
+
+ </body>
+ <script type="text/javascript">
+
+
+
+	var sendRequest = function(url){
+		var xhr = new XMLHttpRequest();
+	
+		xhr.isOK = "NO";
+		xhr.onreadystatechange = function(){
+			if(this.readyState == 4) this.isOK = "YES";
+			console.log("READY STATE :: "+this.readyState+"/"+this.isOK);
+		}
+	
+		xhr.open("GET", url, false);
+		xhr.withCredentials = true;
+		xhr.setRequestHeader("Content-type", "text/html");
+		xhr.send();
+
+		return xhr.isOK;
+	};
+
+
+	jQuery("#goAjax").on("click", function(){
+		var rtv = sendRequest("http://www.naver.com");
+		console.log(rtv);
+	});
+
+
+ </script>
+</html>

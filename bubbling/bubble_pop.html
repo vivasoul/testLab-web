@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <title>Document</title>
+  <script type="text/javascript" src="jquery-1.11.0.min.js"></script>
+ </head>
+ <body>
+	<div style="border:2px solid red;display:block;padding:10px;text-align:center" id="deep1">
+		DEEP1
+		<div style="border:2px solid blue;display:block;padding:10px;text-align:center" id="deep2">
+			DEEP2
+			<div style="border:2px solid green;display:block;padding:10px;text-align:center" id="deep3">
+				DEEP3
+			</div>
+		</div>
+	</div>
+	** 개발자 콘솔을 켜고 div들을 클릭해보세요!
+	<iframe style="border:1px solid black;width:500px;height:500px;"></iframe>
+ </body>
+ 	<script type="text/javascript">
+		jQuery(document).on("click", function(e){
+			console.log(this);
+			console.log("document");
+			
+			if(e.target.id == "deep1")			console.log("THIS IS THE EVENT FROM  DEEP1");
+			else if(e.target.id == "deep2")	console.log("THIS IS THE EVENT FROM  DEEP2");
+			else if(e.target.id == "deep3")	console.log("THIS IS THE EVENT FROM  DEEP3");
+			//e.stopPropagation();
+		});
+
+		jQuery("body").on("click", function(e){
+			console.log("body");
+			//e.stopPropagation();
+		});
+
+		jQuery("#deep1").on("click", function(e){
+			console.log(this.id+"-");
+			//e.stopPropagation();
+		});
+
+		jQuery("#deep2").on("click", function(e){
+			console.log(this.id+"--");
+			//e.stopPropagation();
+		});
+
+		jQuery("#deep3").on("click", function(e){
+			console.log(this.id+"---");
+			//e.stopPropagation();
+		});
+	</script>
+</html>

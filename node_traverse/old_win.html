@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <title>Document</title>
+ </head>
+ <body>
+	<input type="button" id="btnNewWindow" value="새창열기"/>
+ </body>
+ <script type="text/javascript">
+	var newWin;
+	document.getElementById("btnNewWindow").onclick = function(){
+		newWin = window.open("new_win.html","1_print");
+		newWin.document.body.onload = function()
+		{
+			//console.log(this.readyState+"dd");
+			alert("OK");
+		};
+		newWin.document.getElementById("newWinDiv").innerHTML = "OK TO GO";
+		//newWin.print();
+		//newWin.close();
+	}; 
+ </script>
+</html>

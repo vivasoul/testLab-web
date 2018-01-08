@@ -1,0 +1,103 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+  <title> New Document </title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="Generator" content="EditPlus">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+<script type="text/javascript">
+	window.alert = function(msg){
+		var left = window.clientWidth == undefined ? window.innerWidth/2 : window.clientWidth/2;
+		var top = window.clientHeight == undefined ? window.innerHeight/2 : window.clientHeight/2;
+
+		var div = document.createElement("div");
+		div.style.backgroundColor = "#F77";
+		div.style.position = "fixed";
+		div.style.left = left-50+"px";
+		div.style.top = top+"px";
+		div.style.zIndex = "9999";
+		div.style.width = "100px";
+		div.style.display = "inline-block";
+		div.style.textAlign = "center";
+		div.style.padding = "10px";
+		div.innerHTML = msg;
+		
+		document.getElementById("msg_div").appendChild(div);
+	}
+	//#0058EA - 경고창 머리/테두리
+	//#EDE4DD - 경고창 몸통
+	//#E66231 - 경고창 닫기 버튼
+</script>
+<style type="text/css">
+	.ubi_alert.outer_box{
+		border:1px solid #252C33;
+		background-color : #D1E8FE;
+		padding: 0px 5px 5px 5px;
+		display:inline-block;
+		min-width:150px;
+		height:150px;
+	}
+	.ubi_alert.inner_box{
+		border:1px solid #5D6C7A;
+		margin-top:20px;	
+		height:100%;
+	}
+	.ubi_alert.head{
+		text-align:right;
+	}
+	.ubi_alert.body{
+		background-color : #FFF;
+		text-align:center;
+		padding:10px;		
+	}
+	.ubi_alert.foot{
+		height:25px;
+		background-color : #F0F0F0;
+		text-align:right;
+		padding:10px;
+	}
+	.ubi_alert.close{
+		background-color:red;
+		display:inline-block;
+		text-align:center;
+		width:20px;
+	}
+</style>
+ </head>
+
+ <body>
+	<input type="button" id="warnBtn" name="warnBtn" value="경고창" /><br/>
+	너비 : <input type="text" id="windowX" value="" style="width:70px;"/><br/>
+	높이 : <input type="text" id="windowY" value="" style="width:70px;"/>
+	<div id="msg_div">
+		<div class="ubi_alert outer_box">
+			<div class="ubi_alert head">
+				<div class="ubi_alert close">X</div>
+			</div>
+			<div class="ubi_alert inner_box">
+				<div class="ubi_alert body">테스트</div>
+				<div class="ubi_alert foot">
+					<input type="button" class="ubicus_alert confirm" id="closeBtn" name="closeBtn" value="확인" />
+				</div>
+			</div>
+		</div>
+	</div>
+ </body>
+<script type="text/javascript">
+	var btn = document.getElementById("warnBtn");
+	btn.onclick = function(){
+		alert("테스트");
+	};
+	//alert("테스트");
+
+	var displaySize = function(){
+		document.getElementById("windowX").value = window.clientWidth == undefined ? window.innerWidth : window.clientWidth;
+		document.getElementById("windowY").value = window.clientHeight == undefined ? window.innerHeight : window.clientHeight;
+	};
+
+	window.onresize = displaySize;
+	displaySize();
+</script>
+</html>

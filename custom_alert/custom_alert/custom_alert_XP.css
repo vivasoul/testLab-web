@@ -1,0 +1,39 @@
+	.ubi_alert{
+		font-family:"¸¼Àº °íµñ", "Malgun Gothic";
+	}
+	
+	.ubi_alert.box{
+		border:1px solid #AAA;
+		background-color : #555;
+		padding: 3px 3px 3px 3px;
+		display:inline-block;
+		min-width:150px;
+		max-width:700px;
+	}
+	.ubi_alert.head{
+		background: #CCC url(./images/title.gif) top repeat-x;
+		color:#555;	
+		font-weight:bold;
+		font-size:0.9em;
+		line-height: 1.75em;
+		padding-left:3px;
+		text-align:left;
+	}
+	.ubi_alert.body{
+		font-size:0.9em;
+		background-color : #FFF;
+		text-align:center;
+		padding:10px;	
+	}
+	.ubi_alert.foot{
+		background-color : #FFF;
+		text-align:center;
+		padding:10px;		
+	}
+	.ubi_alert.close{
+		color:#666;
+		font-weight:bold;
+		font-size:0.7em;		
+		text-align:center;
+		width:50px;
+	}

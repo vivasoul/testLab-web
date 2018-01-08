@@ -1,0 +1,142 @@
+
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+
+
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <title>Document</title>
+ </head>
+ <body>
+
+	
+  <div>XHR</div>	
+	<label for="xhrTimeout">TIMEOUT</label><input type="text" id="xhrTimeout" value="1000"/><br/>
+
+	<br/>
+	<input type="button" id="xhrGo" value="GO!"/>
+	<input type="button" id="xhrStop" value="STOP!"/>
+	<br/>
+	<div id="consoleBox">
+	</div>
+ </body>
+ 
+<script type="text/javascript">
+
+/*mLooper module START*/
+	var _looper = null;
+	var _callbackArr = [];
+	
+	var getLooper = function(){
+		return _looper;
+	};
+
+	var Looper  = function(){
+		this.loopId = null;
+
+		this.startLoop = function(callbackArr, interval){
+			var that = this;
+			function loopInstance(){
+				//var _interval = interval;
+				try{
+					for(var idx in callbackArr){
+						if(callbackArr[idx] instanceof Function)
+						{
+							if( callbackArr[idx]() == "STOP") throw {message :"NETWORK DISABLED" };
+						}
+					}
+				}catch(e){console.log(e.message); return;}
+				
+				that.loopId = setTimeout(loopInstance, interval);
+				//console.log((new Date()).getSeconds());
+			}
+			if(!(this.loopId)){
+				loopInstance();
+			}
+		}
+		this.stopLoop = function(){
+			if(!!(this.loopId)){
+				clearTimeout(this.loopId);
+				this.loopId = null;				
+			}			
+		}
+	};
+
+	var getLoopCallback = function(){
+		return _callbackArr;
+	};
+		
+	var addLoopCallback = function(callback){
+		_callbackArr.push(callback);			
+	};
+	
+	var initLoopCallback = function(){
+		_callbackArr = [];
+	};
+
+	var stopInstance = function(){		
+		if(getLooper()){
+			_looper.stopLoop();
+		}else{
+		}
+	};
+	
+	var startInstance = function(interval){
+
+
+		if(!getLooper()){
+			_looper = new Looper();
+		}else{
+			stopInstance();
+		}
+
+		_looper.startLoop(getLoopCallback(), interval);
+	};
+
+/*mLooper module END*/
+
+
+var xhrTest = function(){
+
+	var _timeout = document.getElementById("xhrTimeout").value;
+
+	var url = "http://localhost";
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", url, false);
+	xhr.timeout = _timeout;
+	xhr.ontimeout = function(){alert("OK");};
+
+	try{
+		xhr.send(null);
+	}catch(e){
+		var errMsg = "[ABORT_"+e.ABORT_ERR+"/"+"CODE_"+e.code+"] :: "+e.message+" - TIMEOUT_SET="+_timeout;
+		var err_div = document.createElement("div");
+		err_div.innerHTML = errMsg
+		document.getElementById("consoleBox").appendChild(err_div);
+		//console.log(e);
+	}
+	
+	console.log("XHR SENT");
+
+};
+
+document.getElementById("xhrGo").onclick = function(){
+
+	document.getElementById("consoleBox").innerHTML = "";
+
+	initLoopCallback();
+	addLoopCallback(xhrTest);
+	
+	startInstance(1000);
+};
+
+document.getElementById("xhrStop").onclick = function(){
+	stopInstance();
+};
+
+</script>
+</html>

@@ -1,0 +1,29 @@
+
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+
+
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <title>Document</title>
+ </head>
+ <body>
+
+  <div>콘솔객체있음? : <input type="text" id="isConsoleOK" name="isConsoleOK"/></div>
+ </body>
+ 
+ <script type="text/javascript">
+	if(window.console){
+		document.getElementById("isConsoleOK").value = "YES";
+		alert("YES");
+	}else{
+		document.getElementById("isConsoleOK").value = "NO";
+		alert("NO");
+	}	
+
+</script>
+</html>

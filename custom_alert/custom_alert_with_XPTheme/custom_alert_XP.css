@@ -1,0 +1,47 @@
+	.ubi_alert{
+		font-family:"맑은 고딕", "Malgun Gothic";
+	}
+	
+	.ubi_alert.box{
+		border:1px solid #003DE4;
+		background-color : #0058EA;
+		padding: 5px 5px 5px 5px;
+		display:inline-block;
+		width:150px;
+		height:130px;
+	}
+	.ubi_alert.head{
+		color:#FFFDFA;	
+		font-weight:bold;
+		font-size:0.9em;
+		height:20px;
+		text-align:left;
+	}
+	.ubi_alert.body{
+		border-top:1px solid 	#829FE3;
+		border-left:1px solid 	#829FE3;
+		border-right:1px solid 	#829FE3;
+		font-size:0.9em;
+		background-color : #EDE4DD;
+		text-align:center;
+		padding:10px;		
+		height:43px;
+	}
+	.ubi_alert.foot{
+		border-bottom:1px solid 	#829FE3;
+		border-left:1px solid 	#829FE3;
+		border-right:1px solid 	#829FE3;
+		background-color : #EDE4DD;
+		text-align:right;
+		padding:10px;
+		height:25px;
+	}
+	.ubi_alert.close{
+		color:#FFF;
+		background-color:#F63231;
+		font-weight:bold;
+		font-size:0.7em;
+		display:inline-block;
+		text-align:center;
+		width:50px;
+	}

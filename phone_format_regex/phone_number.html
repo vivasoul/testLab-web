@@ -1,0 +1,32 @@
+<html>
+<head>
+<title>test</title>
+</head>
+<body>
+입력전화번호 : <input type="text" id="phone_number" name="phone_number" value=""/><br/>
+출력전화번호 : <input type="text" id="fit_phone_number" name="fit_phone_number" value=""/><br/>
+<textarea id="test_text" style="width:500px;height:300px;">
+안녕하세요.
+반갑습니다.
+	12345 가나다라마
+	              아자차카파타하                  하하
+</textarea>
+</body>
+<script type="text/javascript">
+function fn_filter_phone(_phone){
+	var filtered = "";
+	
+	if(/^02\d{8}/.test(_phone))	filtered  = _phone.replace(/^02/,"");
+	else				filtered  = _phone;
+	return filtered;
+}
+
+document.all.phone_number.onchange=function(e){
+	var filtered = 	fn_filter_phone(this.value.replace(/-/g,""));	
+
+	document.all.fit_phone_number.value = filtered ;	
+	//console.log(filtered);
+};
+//jQuery("#phone_number").on("click", function(){});
+</script>
+</html>

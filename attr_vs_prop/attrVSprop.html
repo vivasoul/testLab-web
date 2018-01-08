@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <title>Document</title>
+  <script type="text/javascript" src="./jquery-1.11.0.min.js"></script>
+ </head>
+ <body>
+  <input type="checkbox" id="mak" checked/>
+  <div>attribute:<span id="attrVal"></span></div>
+  <div>property:<span id="propVal"></span></div>
+  <br/>
+  <input type="text" id="inputText" name="inputText" value="1"/>
+  <div>attribute:<span id="attrVal_text"></span></div>
+  <div>property:<span id="propVal_text"></span></div>
+
+  <select id="test_select" name="test_select">
+	<option value="1">1번</option>
+	<option value="2" selected>2번</option>
+	<option value="3">3번</option>
+  </select>
+
+
+ </body>
+ <script type="text/javascript">
+	jQuery("#attrVal").text(jQuery("#mak").attr("checked"));
+	jQuery("#propVal").text(jQuery("#mak").prop("checked"))
+
+	jQuery("#mak").on("change", function(e){
+		jQuery("#attrVal").text(jQuery(this).attr("checked"));
+		jQuery("#propVal").text(jQuery(this).prop("checked"));
+	});
+
+	jQuery("#inputText").on("keyup", function(e){
+		jQuery("#attrVal_text").text(jQuery(this).attr("value"));
+		jQuery("#propVal_text").text(jQuery(this).prop("value"));
+	});
+	
+	jQuery(document).ready(function(){
+		jQuery("#test_select").on("change", function(){
+			console.log(this.value);
+		});
+
+	});
+
+ </script>
+</html>

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>jQuery UI Accordion - Collapse content</title>
+ <!-- <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">-->
+  <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+  <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+  <link rel="stylesheet" href="/resources/demos/style.css">
+  <style>
+    #list .ui-selecting { background: #FECA40; }
+	#list .ui-selected { background: #F39814; color: white; }
+  </style>
+  <script>
+  $(function() {
+    $( ".accordion" ).accordion({
+      collapsible: true
+    });
+    $( "#list" ).selectable();
+  });
+  </script>
+</head>
+<body>
+
+<div class="accordion">
+  <div>Queue</div>
+  <div id="list">
+	<div style="border:1px solid black;width:100%">사람1</div>
+	<div style="border:1px solid black;width:100%">사람1</div>
+	<div style="border:1px solid black;width:100%">사람1</div>
+	<div style="border:1px solid black;width:100%">사람1</div>
+  </div>
+</div>
+ 
+</body>
+</html>

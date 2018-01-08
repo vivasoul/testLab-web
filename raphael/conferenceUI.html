@@ -1,0 +1,113 @@
+<html>
+<head>
+<title></title>
+<style	type="text/css">
+#conferenceDiv	{
+	background-color : #FFF;
+	display:inline-block;
+	margin-top:50px;
+}
+</style>
+<script type="text/javascript" src="raphael-min.js"></script>
+</head>
+<body>
+
+<div style="text-align:center;">
+	<div id="conferenceDiv"></div>
+<div>
+
+</body>
+<script type="text/javascript">
+	var paper = Raphael("conferenceDiv", 550, 350);	
+
+	paper.clear();
+
+
+ 
+	var line1 = paper.path("M275,205L150,250");
+	var line2 = paper.path("M275,205L400,250");
+	var line3 = paper.path("M275,205L275,100");
+
+	line1.attr("stroke-width", "10");
+	line2.attr("stroke-width", "10");
+	line3.attr("stroke-width", "10");
+
+	line1.attr("stroke-linecap", "round");
+	line2.attr("stroke-linecap", "round");
+	line3.attr("stroke-linecap", "round");
+
+	line1.attr("stroke", "#25DD25");
+	line2.attr("stroke", "#AAAAAA");
+	line3.attr("stroke", "#1E90FF");
+
+	
+	var circle1 = paper.circle(150,250,40);
+	var circle2 = paper.circle(400,250,40);
+	var circle3 = paper.circle(275,100,40);	
+
+	circle1.attr("fill", "#FFF");
+	circle1.attr("stroke", "#25DD25");
+	circle1.attr("stroke-width", "10");
+	circle2.attr("fill", "#FFF");
+	circle2.attr("stroke", "#AAAAAA");
+	circle2.attr("stroke-width", "10");
+	circle3.attr("fill", "#FFF");
+	circle3.attr("stroke", "#1E90FF");
+	circle3.attr("stroke-width", "10");
+	
+	
+	var face1 = paper.path("M155,250a10,10,0, 1,0,-10,0c0,0,-10,3,-10,10v10m20,-20c0,0,10,3,10,10v10h-30");
+	var face2 = paper.path("M405,250a10,10,0, 1,0,-10,0c0,0,-10,3,-10,10v10m20,-20c0,0,10,3,10,10v10h-30");
+	var face3 = paper.path("M280,100a10,10,0, 1,0,-10,0c0,0,-10,3,-10,10v10m20,-20c0,0,10,3,10,10v10h-30");
+
+	face1.attr("fill","#25DD25");
+	face1.attr("stroke-width","0");
+	face2.attr("fill","#AAAAAA");
+	face2.attr("stroke-width","0");
+	face3.attr("fill","#1E90FF");
+	face3.attr("stroke-width","0");
+
+	var mini_circle1_1 = paper.circle(150+58,250+16,10);
+	var mini_circle1_2 = paper.circle(150+42,250+42,10);
+
+	mini_circle1_1.attr("text","HOLD");
+
+	var mini_circle2_1 = paper.circle(400+58,250+16,10);
+	var mini_circle2_2 = paper.circle(400+42,250+42,10);
+
+	var icon1 = paper.path("M16,3.667C9.189,3.667,3.667,9.188,3.667,16S9.189,28.333,16,28.333c6.812,0,12.333-5.521,12.333-12.333S22.812,3.667,16,3.667zM16,6.667c1.851,0,3.572,0.548,5.024,1.48L8.147,21.024c-0.933-1.452-1.48-3.174-1.48-5.024C6.667,10.854,10.854,6.667,16,6.667zM16,25.333c-1.85,0-3.572-0.548-5.024-1.48l12.876-12.877c0.933,1.452,1.48,3.174,1.48,5.024C25.333,21.146,21.146,25.333,16,25.333z");
+
+	/*
+	var i = 0;
+	setInterval(function(){
+		var rest = i%3;
+		console.log(rest);
+		switch(rest){
+			case 0 : 
+				line1.attr("stroke", "#00F");
+				line2.attr("stroke", "#0F0");
+				line3.attr("stroke", "#0F0");		
+				break;
+			case 1 : 
+				line1.attr("stroke", "#0F0");
+				line2.attr("stroke", "#00F");
+				line3.attr("stroke", "#0F0");		
+				break;
+			case 2 : 
+				line1.attr("stroke", "#0F0");
+				line2.attr("stroke", "#0F0");
+				line3.attr("stroke", "#00F");
+				break;
+		}
+		i++;
+	}, 1000)
+	*/
+	/*
+	var line = paper.path("M50,10L550,10");
+	line.attr("stroke-width", "10");
+	
+	var curve = paper.path("M50,50C50,50,500,150,50,250");
+	curve.attr("stroke-width", "3");
+	*/
+</script>
+</html>

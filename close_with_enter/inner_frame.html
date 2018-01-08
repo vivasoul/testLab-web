@@ -1,0 +1,72 @@
+<!DOCTYPE HTML> 
+<html>
+<head><script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script	type="text/javascript">
+
+</script>
+<style type="text/css">	
+.ubi_alert {
+	display:inline-block;
+	width:100px;
+	height:100px;
+	background-color:#4400EE;
+}
+</style>
+</head>
+<body>
+<div class="ubi_alert">
+TEST
+</div>
+<div class="ubi_alert">
+TEST
+</div>
+<div class="ubi_alert">
+TEST
+</div>
+<div class="ubi_alert">
+TEST
+</div>
+<div class="ubi_alert">
+TEST
+</div>
+</body>
+<script	type="text/javascript">
+	var creatBox = function(){
+		var box_div = document.createElement("div");
+		box_div.className = "ubi_alert";
+		box_div.innerHTML = "TEST!!";
+		
+		document.body.appendChild(box_div);
+	};
+	var closable_keyCode = {
+		"13" : "enter",
+		"27" : "esc",
+		"32" : "spacebar"
+	};	
+	document.onkeypress = function(e){
+		if(e.keyCode in closable_keyCode)
+		{
+			var alert_boxes = document.getElementsByClassName("ubi_alert");
+			
+			if(alert_boxes.length > 0)
+			{
+				var alert_box = alert_boxes[alert_boxes.length-1];
+				document.body.removeChild(alert_box);
+			}
+			
+			if(alert_boxes.length < 1){
+				try{
+					this.parentWindow.top.document.all.blockFrame.style.display = "none";
+				}catch(e){
+					console.log(e);
+				}
+			}
+			
+			try{
+				if(e.stopPropagation)	e.stopPropagation();
+				else 					e.cancelBubble = true;
+			}catch(e){}
+		}		
+	};
+</script>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" /> 
+<title></title>
+<script type="text/javascript" src="jquery-1.11.0.min.js"></script>
+
+<script type="text/javascript">
+jQuery(document).ready(function(){	
+
+	jQuery("#test").on("click", function(){
+		var cid = jQuery("#inbound_cid").val();
+		var ivr = jQuery("#inbound_ivr").val();
+		init();
+		regexTest(cid,ivr);
+	});
+
+	jQuery("#init").on("click", function(){
+		init();
+	});
+});	
+
+function init(){
+	jQuery(".output").val("");
+}
+
+function regexTest(cid, ivr){
+	//인입 후 전화번호 전화번호 및 ivr데이터 화면에 출력	
+	//var regex1 = new Regex(/^0[156789]0/);
+	
+	if(/^0[156789]0/.test(cid))	 jQuery("#cust_form #mobile").val(cid);
+	else							 jQuery("#cust_form #tel").val(cid);
+	
+	jQuery("#cnslt_detail_form #cntnt").val(ivr);
+	
+	try{
+		ivr = ivr.match(/A(\d*)B/)[1] + "";
+	}catch(e){
+		ivr = "";
+	}
+	
+	if	   ( ivr.length > 9)
+	{
+		 jQuery("#cust_form #corporate_num").val(ivr);
+	}
+	else if(ivr.length > 7)
+	{
+		jQuery("#cust_form #ssn_type").val("ISMHCN01");
+		jQuery("#cust_form #ssn_no").val(ivr);					
+	}
+	else if(ivr.length > 5)
+	{
+		jQuery("#cust_form #ssn_type").val("ISMHCN02");
+		jQuery("#cust_form #ssn_no").val(ivr);					
+	}
+}
+</script>
+</head>
+<body>
+<form id="cust_form" name="cust_form">
+	<table>
+		<tr>
+			<th>회사번호</th>
+			<td>
+				<input class="output" id="corporate_num" name="corporate_num" value="" type="text" />
+			</td>
+			<th>고객번호</th>
+			<td>
+				<input class="output" id="ssn_no" name="ssn_no" value="" type="text" />
+				<select class="output" id="ssn_type">
+					<option value="">::고객식별타입::</option>
+					<option value="ISMHCN01">고객코드</option>
+					<option value="ISMHCN02">생년월일</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<th>핸드폰</th>
+			<td>
+				<input class="output" id="mobile" name="mobile" value="" type="text" />
+			</td>
+			<th>일반전화</th>
+			<td>
+				<input class="output" id="tel" name="tel" value="" type="text" />
+			</td>
+		</tr>
+	</table>
+</form>
+
+<form id="cnslt_detail_form" name="cnslt_detail_form">
+	<table>
+		<tr>
+			<th>상담상세내용</th>
+			<td>
+				<input class="output" id="cntnt" name="cntnt" value="" type="text" />
+			</td>
+		</tr>
+	</table>
+</form>
+<div id="input_scope">
+	<table>
+		<tr>
+			<th>인바운드 번호</th>
+			<td>
+				<input id="inbound_cid" name="inbound_cid" value="01045619657" type="text" />
+			</td>
+			<th>인바운드 IVR</th>
+			<td>
+				<input id="inbound_ivr" name="inbound_ivr" value="A1234567890B01045619657" type="text" />
+			</td>
+		</tr>
+	</table>
+	<input id="test" name="test" value="TEST IT!" type="button" />
+	<input id="init" name="init" value="INIT!" type="button" />
+</div>
+<div id="ajaxLoader"></div>
+</body>
+</html>

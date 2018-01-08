@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+  <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+  <script src="raphael-min.js"></script>
+  <title>Document</title>
+  <style>
+  .draggable { width: 90px; height: 80px; padding: 5px; float: left; margin: 0 10px 10px 0; font-size: .9em; }
+  .ui-widget-header p, .ui-widget-content p { margin: 0; }
+  #snaptarget { height: 140px; }
+ #draggable5, #draggable6 { width:80px; height:80px; background-color:#999;}
+  #containment_wrapper { border : 1px solid black;display:inline-block; width:400px; height:400px;}
+  #room_contatiner { border : 1px solid black; display:block; width:1100px; height:800px; margin:0 auto;}
+  .lined_box { border : 1px solid black;}
+  </style>
+  <script type="text/javascript">
+	var grid_count = 0;
+	var grid_size = 0;		
+
+	var initGrid = function(stand_vertexes, _grid_size){
+		grid_size = _grid_size;
+		grid_count = (stand_vertexes[2].x - stand_vertexes[1].x)/_grid_size;
+	};
+
+	/* Depth of view */
+	var dov = 500;
+    var depth = 200;
+
+	var Coordinate = function(x, y, _depth){
+		this.x = x;
+		this.y = y;
+		this.depth = _depth > dov ? dov : _depth;
+	};
+
+	var oov = new Coordinate(550, -500, dov);
+
+	var tgts = [];
+    tgts.push(new Coordinate(50,400, depth));			//left-top
+	tgts.push(new Coordinate(50,700, depth));			//left-bottom
+	tgts.push(new Coordinate(1050,700, depth))			//right-bottom
+	tgts.push(new Coordinate(1050,400, depth));		//right-top
+
+	var click_before = new Coordinate(0,0, -2);
+  	var click_after = new Coordinate(0,0, -2);
+
+	var caculateQuarter = function(origin, target){
+		if( ! (origin instanceof Coordinate)  ) return 0;
+		if( ! (target instanceof Coordinate)  ) return 0;
+
+		if( origin.x > target.x )
+		{
+			if( origin.y > target.y )	return 2;
+			else							return 3;
+		}
+		else
+		{
+			if( origin.y > target.y )	return 1;
+			else							return 4;
+		}
+	};
+
+	var transformedCoordinate = function(origin, target, _depth){
+		
+		var quarter = caculateQuarter(origin, target);
+
+		var transformed;
+		var new_x, new_y, depth_ratio;
+			
+		switch(quarter){
+			case 1 : 
+			case 2 :
+			case 3 :
+			case 4 :
+				depth_ratio = 1.0*target.depth/origin.depth;
+				new_x = Math.round(target.x+depth_ratio*(origin.x - target.x));
+				new_y = Math.round(target.y+depth_ratio*(origin.y - target.y));
+
+				transformed = new Coordinate(new_x, new_y, _depth || -1);
+				break;
+			default :				
+			transformed = target;
+		}	
+		return transformed;
+	};
+	
+	var getTransformedVertexes = function(origin, vertex_arr, _depth){
+
+	  var transed_tgts = [];
+		
+      if(vertex_arr.length > 0)
+	  {
+		  for(var j=0; j < vertex_arr.length; j++)
+		  {
+			transed_tgts.push(transformedCoordinate(origin, vertex_arr[j], _depth));
+		  }
+	  }
+	  else
+	  {
+		  transed_tgts = vertex_arr;
+	  }
+
+	  return transed_tgts;
+	};
+
+	var getRectanglePath = function(cd_arr){
+		var path = "";
+		
+		var max_size = cd_arr.length;
+
+		if(max_size > 0)
+		{	
+			path += "M"+cd_arr[max_size-1].x+","+cd_arr[max_size-1].y;
+
+			for(var i=0; i < max_size; i++)
+			{	
+				path += " L"+cd_arr[i].x+","+cd_arr[i].y;
+			}
+		}
+		return path;
+	};
+
+	var getOpenRectanglePath = function(cd_arr){
+		var path = "";
+		
+		var max_size = cd_arr.length;
+
+		if(max_size > 0)
+		{	
+			path += "M"+cd_arr[0].x+","+cd_arr[0].y;
+
+			for(var i=0; i < max_size; i++)
+			{	
+				path += " L"+cd_arr[i].x+","+cd_arr[i].y;
+			}
+		}
+		return path;
+	};
+
+	var getVertexAlignPath = function(box_vertex_arr1, box_vertex_arr2){
+		var path = "";
+
+		if(box_vertex_arr1.length !== box_vertex_arr2.length){
+			
+		}else{
+			for(var i=0; i<box_vertex_arr1.length; i++)
+			{
+				path += "M"+box_vertex_arr1[i].x+","+box_vertex_arr1[i].y+" L"+box_vertex_arr2[i].x+","+box_vertex_arr2[i].y+" ";
+			}
+		}
+		return path;
+	};
+
+	var getOpenHexahedron = function(far_vtxs, near_vtxs){
+		var hedrons = [];
+		/*
+		l - t   0
+		l - b  1
+		r - b  2
+		r - t   3
+		*/
+		hedrons.push(getRectanglePath(far_vtxs));
+
+		if(far_vtxs[1].y > near_vtxs[1].y )
+		{
+			hedrons.push(getRectanglePath([far_vtxs[0], far_vtxs[1], near_vtxs[1], near_vtxs[0]]));
+			hedrons.push(getRectanglePath([far_vtxs[2], far_vtxs[3], near_vtxs[3], near_vtxs[2]]));
+			hedrons.push(getRectanglePath([far_vtxs[1], far_vtxs[2], near_vtxs[2], near_vtxs[1]]));
+		}
+		else
+		{
+			hedrons.push(getRectanglePath([far_vtxs[1], far_vtxs[2], near_vtxs[2], near_vtxs[1]]));
+			hedrons.push(getRectanglePath([far_vtxs[0], far_vtxs[1], near_vtxs[1], near_vtxs[0]]));
+			hedrons.push(getRectanglePath([far_vtxs[2], far_vtxs[3], near_vtxs[3], near_vtxs[2]]));
+		}
+		//hedrons.push(getRectanglePath([far_vtxs[3], far_vtxs[0], near_vtxs[0], near_vtxs[3]]));
+		//hedrons.push(getRectanglePath(near_vtxs));
+
+		return hedrons;
+	};
+
+	var getHexahedron = function(far_vtxs, near_vtxs){
+		var hedrons = [];
+		/*
+		l - t   0
+		l - b  1
+		r - b  2
+		r - t   3
+		*/
+		hedrons.push(getRectanglePath(far_vtxs)); //back
+		hedrons.push(getRectanglePath([far_vtxs[1], far_vtxs[2], near_vtxs[2], near_vtxs[1]])); //bottom
+		hedrons.push(getRectanglePath([far_vtxs[0], far_vtxs[1], near_vtxs[1], near_vtxs[0]])); //left
+		hedrons.push(getRectanglePath([far_vtxs[2], far_vtxs[3], near_vtxs[3], near_vtxs[2]])); //right
+		hedrons.push(getRectanglePath([far_vtxs[3], far_vtxs[0], near_vtxs[0], near_vtxs[3]])); //top
+		hedrons.push(getRectanglePath(near_vtxs)); //fore
+
+		return hedrons;
+	};
+
+	var getGrid = function(far_vtxs, near_vtxs){
+		/*
+		l - t   0
+		l - b  1
+		r - b  2
+		r - t   3
+		*/
+		var path = "";
+
+		//grid_count = (near_vtxs[2].x - near_vtxs[1].x)/grid_size;
+		
+		var near_x_ticks = [];
+		var far_x_ticks = [];
+
+		for(var i=1;	i < grid_count; i++)
+		{
+			var near_x_tick =  new Coordinate( near_vtxs[1].x+grid_size*i,  near_vtxs[1].y, depth);
+			var far_x_tick = transformedCoordinate(oov, near_x_tick);
+
+			near_x_ticks.push(near_x_tick);
+			far_x_ticks.push(far_x_tick);
+		}
+
+		path += getVertexAlignPath(near_x_ticks, far_x_ticks);
+
+		var left_y_ticks = [];
+		var right_y_ticks = [];
+
+		for(var i=1;	i < grid_count; i++)
+		{
+			var left_y_tick =  transformedCoordinate(oov, new Coordinate( near_vtxs[1].x,  near_vtxs[1].y, depth*i/grid_count));
+			var right_y_tick = transformedCoordinate(oov, new Coordinate( near_vtxs[2].x,  near_vtxs[2].y, depth*i/grid_count));
+
+			left_y_ticks.push(left_y_tick);
+			right_y_ticks.push(right_y_tick);
+		}
+
+		path += getVertexAlignPath(left_y_ticks, right_y_ticks);
+
+		return path;
+	};
+
+	var getHexahedronUnit = function(stand_vertex, grid_x_pos, grid_y_pos, grid_x_len, grid_y_len, height){
+		grid_x_len = grid_x_len || 1;
+		grid_y_len = grid_y_len || 1;
+		height = height || grid_size;
+
+		/*
+		l - t   0
+		l - b  1
+		r - b  2
+		r - t   3
+		*/		
+		var raw_vertex = [];
+		raw_vertex.push(new Coordinate(stand_vertex[1].x+grid_size*grid_x_pos, stand_vertex[1].y-height, depth*grid_y_pos/grid_count));
+		raw_vertex.push(new Coordinate(stand_vertex[1].x+grid_size*grid_x_pos, stand_vertex[1].y, depth*grid_y_pos/grid_count));
+		raw_vertex.push(new Coordinate(stand_vertex[1].x+grid_size*(grid_x_pos+grid_x_len), stand_vertex[1].y, depth*grid_y_pos/grid_count));
+		raw_vertex.push(new Coordinate(stand_vertex[1].x+grid_size*(grid_x_pos+grid_x_len), stand_vertex[1].y-height, depth*grid_y_pos/grid_count));
+
+		var raw_vertex2 = [];
+		raw_vertex2.push(new Coordinate(stand_vertex[1].x+grid_size*grid_x_pos, stand_vertex[1].y-height, depth*(grid_y_pos+grid_y_len)/grid_count));
+		raw_vertex2.push(new Coordinate(stand_vertex[1].x+grid_size*grid_x_pos, stand_vertex[1].y, depth*(grid_y_pos+grid_y_len)/grid_count));
+		raw_vertex2.push(new Coordinate(stand_vertex[1].x+grid_size*(grid_x_pos+grid_x_len), stand_vertex[1].y, depth*(grid_y_pos+grid_y_len)/grid_count));
+		raw_vertex2.push(new Coordinate(stand_vertex[1].x+grid_size*(grid_x_pos+grid_x_len), stand_vertex[1].y-height, depth*(grid_y_pos+grid_y_len)/grid_count));
+
+		var near_vertex = getTransformedVertexes(oov, raw_vertex);
+		var far_vertex = getTransformedVertexes(oov, raw_vertex2);
+
+		return getHexahedron(far_vertex, near_vertex);
+	};
+	
+	const LEFT_SIDE_DESK			= 1;
+	const RIGHT_SIDE_DESK		= 2;
+	const TOP_SIDE_DESK			= 3;
+	const BOTTOM_SIDE_DESK	= 4;
+
+	var Desk = function(_type, _id, _base, _grid_px, _grid_py){
+		this.id = _id;
+		this.parts = {};
+		switch(type){
+			case LEFT_SIDE_DESK : 
+				
+				break;
+			case RIGHT_SIDE_DESK : 
+				break;
+			case TOP_SIDE_DESK : 
+				break;
+			case BOTTOM_SIDE_DESK : 
+				break;
+		}
+		parts.desk = paper_obj.getHexahedronUnit(_base, _grid_px, _grid_py, 2, 2);
+
+	};
+
+	Raphael.fn.draw = function(origin, target){
+		this.clear();
+
+		var trans_target = getTransformedVertexes(origin, target);
+		
+		/*
+ 		this.path(getRectanglePath(trans_target)).attr("fill","#777");
+		 
+		this.path(getOpenRectanglePath(target));
+
+		this.path(getVertexAlignPath(target, trans_target));
+		*/
+
+		var paths = getOpenHexahedron(trans_target, target);
+
+		for(var p=0; p<paths.length; p++)
+		{
+			//var color = (p+3)*100+(p+3)*10+(p+3);
+			//this.path(paths[p]).attr("fill","#"+color);
+			this.path(paths[p]);
+		}
+		
+		var grid_path = getGrid(trans_target, target);
+		this.path(grid_path);
+
+		this.getHexahedronUnit(target, 3,15.5, 1, 1, 25)
+			 .getHexahedronUnit(target, 3,13.5, 1, 1, 25)
+		     .getHexahedronUnit(target, 3,11.5, 1, 1, 25)
+			 .getHexahedronUnit(target, 3,9.5, 1, 1, 25)
+		     .getHexahedronUnit(target, 3,7.5, 1, 1, 25)
+			 .getHexahedronUnit(target, 3,5.5, 1, 1, 25)
+     		 .image("agent_stat_05a.png", 240, 495, 50, 50).attr("transform","skewX(20)");
+		this.getHexahedronUnit(target, 4,15, 2, 2)
+			 .getHexahedronUnit(target, 4,13, 2, 2)
+			 .getHexahedronUnit(target, 4,11, 2, 2)
+			 .getHexahedronUnit(target, 4,9, 2, 2)
+			 .getHexahedronUnit(target, 4,7, 2, 2)
+			 .getHexahedronUnit(target, 4,5, 2, 2)
+			 .getHexahedronUnit(target, 6,15, 2, 2)
+			 .getHexahedronUnit(target, 6,13, 2, 2)
+			 .getHexahedronUnit(target, 6,11, 2, 2)
+			 .getHexahedronUnit(target, 6,9, 2, 2)
+			 .getHexahedronUnit(target, 6,7, 2, 2)
+			 .getHexahedronUnit(target, 6,5, 2, 2)
+			 .getHexahedronUnit(target, 5,3, 2, 2);
+
+		this.getHexahedronUnit(target, 8,15.5, 1, 1, 25);
+		this.getHexahedronUnit(target, 8,13.5, 1, 1, 25);
+		this.getHexahedronUnit(target, 8,11.5, 1, 1, 25);
+		this.getHexahedronUnit(target, 8,9.5, 1, 1, 25);
+		this.getHexahedronUnit(target, 8,7.5, 1, 1, 25);
+		this.getHexahedronUnit(target, 8,5.5, 1, 1, 25);
+
+		this.getHexahedronUnit(target, 5.5, 2, 1, 1, 25);
+
+		this.getHexahedronUnit(target, 14,15, 2, 2)
+			.getHexahedronUnit(target, 14,13, 2, 2)
+			.getHexahedronUnit(target, 14,11, 2, 2)
+			.getHexahedronUnit(target, 14,9, 2, 2)
+			.getHexahedronUnit(target, 14,7, 2, 2)
+			.getHexahedronUnit(target, 14,5, 2, 2)
+			.getHexahedronUnit(target, 12,15, 2, 2)
+			.getHexahedronUnit(target, 12,13, 2, 2)
+			.getHexahedronUnit(target, 12,11, 2, 2)
+			.getHexahedronUnit(target, 12,9, 2, 2)
+			.getHexahedronUnit(target, 12,7, 2, 2)
+			.getHexahedronUnit(target, 12,5, 2, 2)
+			.getHexahedronUnit(target, 13,3, 2, 2);
+		
+	
+	};
+
+	Raphael.fn.getHexahedronUnit = function(stand_vertex, grid_x_pos, grid_y_pos, grid_x_len, grid_y_len, height){
+
+		var paths = getHexahedronUnit(stand_vertex, grid_x_pos, grid_y_pos, grid_x_len, grid_y_len, height);
+
+		for(var p=0; p<paths.length; p++)
+		{
+			this.path(paths[p]).attr("fill","#999");
+		}
+
+		return this;
+	};
+		
+	jQuery(function(){
+		  jQuery( "#draggable5" ).draggable({ containment : "#containment_wrapper", grid: [ 20, 20 ] });
+		  jQuery( "#draggable6" ).draggable({ containment : "#containment_wrapper", grid: [ 20, 20 ] });
+
+        initGrid(tgts, 50);
+
+		window.paper = Raphael("room_contatiner", 1100, 800);
+		
+		paper.draw(oov, tgts);
+
+		  jQuery("#room_contatiner").on("mousedown", function(e){
+				e = e || window.event;
+
+				click_after.x = 0;
+				click_after.y = 0;
+				
+				click_before.x = 0;
+      			click_before.y = 0;
+				
+				this.mousedowned = true;
+		  }).on("mouseup", function(e){
+				e = e || window.event;
+
+				this.mousedowned = false;
+		  }).on("mousemove", function(e){
+				e = e || window.event;
+				
+				if(this.mousedowned){
+					
+					click_after.x = e.clientX;
+					click_after.y = e.clientY;
+					
+					var diff_x = click_after.x - click_before.x;
+					var diff_y = click_after.y - click_before.y;
+
+					if(diff_x !== click_after.x) oov.x += diff_x;
+					if(diff_y !== click_after.y) oov.y += diff_y;					
+					
+					paper.draw(oov, tgts);				 
+					
+					click_before.x = click_after.x;
+					click_before.y = click_after.y;
+					
+				}
+		  }).on("mouseleave", function(e){
+				if(this.mousedowned) this.mousedowned = false;
+		  });
+	});
+  </script>
+ </head>
+ <body>
+ <div id="containment_wrapper" style="display:none">
+<div id="draggable5" class="">
+	I snap to a 80 x 80 grid
+</div>
+<div id="draggable6" class="">
+	I snap to a 80 x 80 grid2 
+</div>
+</div>
+<div id="room_contatiner"></div>
+ </body>
+</html>
+

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+input[type=text]{ width:70px; }
+</style>
+<script type="text/javascript">
+
+var RGBtoColorIDX = function(r,g,b){
+	var hex = "#";
+
+	var DecimalToHEX = function(v){
+		var hex = v.toString(16);
+		if(v < 16) hex = "0" + hex;
+		return hex;
+	};
+    if(r > 255 || g > 255 || b > 255)   return hex = hex + "000";
+    else                                return hex = hex + DecimalToHEX(r) + DecimalToHEX(g) + DecimalToHEX(b);
+};
+
+/*
+	#1. Palette must be the distinct color set enough to be classfied in human-eyes.
+	#2. Palette must have ,at least, 20 colors.
+	
+	s_rgb : start value of rgb
+	s_zie : size of step to get the next rgb
+	noc   : the number of colors you want to generate
+*/
+var generatePalette = function(s_rgb, s_size, noc){
+	var palette = [];
+	for(var i=0; i<noc; i++){
+		palette.push(RGBtoColorIDX(s_rgb[0], s_rgb[1], s_rgb[2]));
+		s_rgb[i % 3] = (s_rgb[i % 3]+s_size) % 256;
+	}
+	return palette;
+};
+
+var renderPalette = function(p){
+	var div = document.createElement("div");
+		var sub_div = document.createElement("div");
+		
+		var start_rgb = p[0];
+		var noc = p.length;
+		var step_size = noc > 0 ? Number(p[1].substring(0,3).replace("#","0x")) - Number(p[0].substring(0,3).replace("#","0x")) : 0;
+		sub_div.innerHTML="START RGB="+start_rgb+"@STEP_SIZE="+step_size+"@THE NUMBER OF COLORS="+noc;
+		div.appendChild(sub_div);
+		for(var i=0, len=p.length; i < len; i++){
+			var sub_div = document.createElement("div");
+			sub_div.style.backgroundColor = p[i];
+			sub_div.style.display = "inline-block";
+			sub_div.style.width="50px";
+			sub_div.style.height="50px";
+			sub_div.style.border="1px solid #FFF";
+			
+			div.appendChild(sub_div);
+		}
+	document.all.palettes.appendChild(div);
+};
+
+document.onreadystatechange = function(e){
+	if(document.readyState == "complete"){
+		document.all.add_palette.onclick = function(e){
+			var start_rgb = [Number(document.all.start_r.value), Number(document.all.start_g.value), Number(document.all.start_b.value)];
+			var step_size = Number(document.all.s_size.value);
+			var noc = Number(document.all.noc.value);
+			
+			renderPalette(generatePalette(start_rgb, step_size, noc));
+		};
+		
+		document.all.init_palette.onclick = function(e){
+			var parent = document.all.palettes;
+			var children = parent.childNodes;
+			var len = children.length;
+			for(var i=0; i<len; i++) parent.removeChild(children[0]);
+		};
+	}
+};
+</script>
+</head>
+<body>
+	<h5>START RGB</h5>
+	<label> R : <input type="text" id="start_r" value="0"/></label>&nbsp;
+	<label> G : <input type="text" id="start_g" value="0"/></label>&nbsp;
+	<label> B : <input type="text" id="start_b" value="0"/></label><br/>
+	<label> STEP_SIZE : <input type="text" id="s_size" value="20"/></label>&nbsp;
+	<label> THE NUMBER OF COLORS : <input type="text" id="noc" value="10"/></label><br/>
+	<input type="button" id="add_palette" value="ADD"/>&nbsp;<input type="button" id="init_palette" value="INIT"/>
+	<div id="palettes"></div>
+</body>
+</html>

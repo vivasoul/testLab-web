@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title></title>
+<style type="text/css">
+#CTI_error_div{
+	float:right;
+	width:300px;
+}
+.CTI_error_popUp{
+	width:250px;
+	height:100px;
+	border:1px solid black;
+	margin-bottom:5px;
+}
+.errorCloseHeader{
+	float:right;
+	padding-right:3px;
+	padding-top:3px;
+}
+.errorBody{
+	clear:both;
+	padding-left:3px;
+	padding-right:3px;
+	padding-bottom:3px;
+}
+</style>
+<script type="text/javascript" src="./jquery-1.11.0.min.js"></script>
+<script type="text/javascript">
+
+var popUpFactory = {
+	create : function(){
+				var html = [];
+				html.push("<div class='CTI_error_popUp'>");
+				html.push("<span class='errorCloseHeader'>X</span>");
+				html.push("<div class='errorBody'>");
+				html.push(jQuery("#err_msg_input").val());
+				html.push("</div>");
+				html.push("</div>");
+
+				return html.join('');
+			}
+};
+jQuery(document).ready(function(){
+	jQuery("#add_error").on("click",function(){
+		$("#CTI_error_div").append(popUpFactory.create());
+	});
+
+	jQuery("#CTI_error_div").on("click",".errorCloseHeader", function(){
+		$(this).parent().remove();
+	});
+});
+</script>
+</head>
+<body>
+<div id="CTI_error_div">
+</div>
+<label>¸Þ¼¼Áö</label><input type="text" id="err_msg_input" value=""/><br/>
+<input type="button" id="add_error" value="ADD ERROR"/>
+</body>
+</html>

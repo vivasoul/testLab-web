@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <title>Document</title>
+ </head>
+ <body>
+
+ 부모님이름 : <input type="text" id="whoisyourparent" value=""/><br/>
+  <input type="button" id="btnOpenNextSibling" value="동생 열기"/>
+ </body>
+<script type="text/javascript">
+	var mainWin = window.open("", "Dasvader");
+	if(mainWin.isParent) document.getElementById("whoisyourparent").value = mainWin.name;
+	else						 document.getElementById("whoisyourparent").value = "UNKNOWN";
+
+	document.getElementById("btnOpenNextSibling").onclick = function(){
+		window.open("child.html");
+	};
+</script>
+</html>
